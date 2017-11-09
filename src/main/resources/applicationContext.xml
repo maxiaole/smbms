@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	<!-- 引入资源文件 -->
+ 	<context:property-placeholder 
+		location="classpath:mysql.properties"/>
+	<!-- DataSource -->		
+	<bean id="dataSource" 
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${mysql.driver}"/>
+		<property name="url" value="${mysql.url}"/>
+		<property name="username" value="${mysql.username}"/>
+		<property name="password" value="${mysql.password}"/>
+	</bean>
+	<!-- sqlSessionFactory -->
+	<bean id="sqlSessionFactory"
+	class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!--引入数据源 -->
+		<property name="dataSource" ref="dataSource"/>
+		<!-- 实体类别名 -->
+		<property name="typeAliasesPackage"
+			value="cn.smbms.pojo"/>
+		<!-- 扫描SQL映射文件 -->
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:cn/smbms/mapper/xml/*.xml</value>
+			</list>
+		</property>
+	</bean>
+<!-- MapperScannerConfigurator -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.smbms.mapper"/>
+	</bean>
+<!-- 事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+<!-- 事务规范 -->
+	<tx:advice id="txAdvie">
+		<tx:attributes>
+			<tx:method name="find*" read-only="true"/>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="load*" read-only="true"/>
+			<tx:method name="serach*" read-only="true"/>
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+<!-- AOP切面 -->	
+	<aop:config>
+		<aop:pointcut expression="execution(* com.smbms.service.*.*(..))" id="pointcut"/>
+		<aop:advisor advice-ref="txAdvie" pointcut-ref="pointcut"/>
+	</aop:config>
+</beans>

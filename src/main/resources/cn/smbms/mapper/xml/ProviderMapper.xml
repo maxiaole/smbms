@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.mapper.ProviderMapper">
+	<!-- 分页公共sql -->
+	<sql id="queryPage">
+		from smbms_provider 
+		<where>
+			<if test="proName!=null">
+			and proName like CONCAT('%',#{proName},'%')
+			</if>
+			<if test="proCode!=null">
+			and proCode like CONCAT('%',#{proCode},'%')
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 动态查询+分页的数据显示 -->
+	<select id="findProviderByPage" resultType="Provider" 
+		parameterType="hashmap">
+		select * 
+		<include refid="queryPage"/> 
+		LIMIT #{index},#{size}
+	</select>
+	
+	<!-- 动态查询+分页的总条数 -->
+	<select id="countByPage" resultType="Integer"
+		parameterType="hashmap">
+		select count(*)
+		<include refid="queryPage"/>
+	</select>
+	
+	<!-- 删除供应商 -->
+	<delete id="delectProvider" parameterType="Integer">
+		<if test="id!=null">
+			delete from smbms_provider where id = #{id}
+		</if>
+	</delete>
+	
+	<!-- 更新供货商 -->
+	<update id="updateProvider" parameterType="Provider">
+		update smbms_provider
+		<trim prefix="set" suffix="where id=#{id}" suffixOverrides=",">
+			<if test="proCode!=null">proCode=#{proCode},</if>
+			<if test="proName!=null">proName=#{proName},</if>
+			<if test="proDesc!=null">proDesc=#{proDesc},</if>
+			<if test="proContact!=null">proContact=#{proContact},</if>
+			<if test="proPhone!=null">proPhone=#{proPhone},</if>
+			<if test="proAddress!=null">proAddress=#{proAddress},</if>
+			<if test="proFax!=null">proFax=#{proFax},</if>
+			<if test="createdBy!=null">createdBy=#{createdBy},</if>
+			<if test="creationDate!=null">creationDate=#{creationDate},</if>
+			<if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+			<if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+		</trim>
+	</update>
+	
+	<!-- 添加供货商 -->
+	<insert id="addProvider" parameterType="Provider">
+		insert into smbms_provider(id,proCode,proName,proDesc,proContact,proPhone,proAddress,proFax,createdBy,creationDate,modifyDate,modifyBy) 
+		values (#{id},#{proCode},#{proName},#{proDesc},#{proContact},#{proPhone},#{proAddress},#{proFax},#{createdBy},#{creationDate},#{modifyDate},#{modifyBy})
+	</insert>
+	
+	<!-- 通过ID获取供货商信息 -->
+	<select id="findProviderByid" resultType="Provider">
+		select * from smbms_provider 
+		where id = #{id}
+	</select>
+</mapper>

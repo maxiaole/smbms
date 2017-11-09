@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.mapper.UserMapper">
+	
+	<select id="findByName" resultType="User">
+		select u.*,r.roleName AS userRoleName 
+		from smbms_user u,	smbms_role r
+		where u.userRole=r.id AND u.userCode=#{name}
+	</select>
+	<insert id="saveUser" parameterType="User">
+		INSERT INTO smbms_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userCode!=null">userCode,</if>
+			<if test="userName!=null">userName,</if>
+			<if test="userPassword!=null">userPassword,</if>
+			<if test="gender!=null">gender,</if>
+			<if test="birthday!=null">birthday,</if>
+			<if test="phone!=null">phone,</if>
+			<if test="address!=null">address,</if>
+			<if test="userRole!=null">userRole,</if>
+			<if test="createdBy!=null">createdBy,</if>
+			<if test="creationDate!=null">creationDate,</if>
+			<if test="modifyBy!=null">modifyBy,</if>
+			<if test="modifyDate!=null">modifyDate,</if>
+		</trim>
+		VALUES
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userCode!=null">#{userCode},</if>
+			<if test="userName!=null">#{userName},</if>
+			<if test="userPassword!=null">#{userPassword},</if>
+			<if test="gender!=null">#{gender},</if>
+			<if test="birthday!=null">#{birthday},</if>
+			<if test="phone!=null">#{phone},</if>
+			<if test="address!=null">#{address},</if>
+			<if test="userRole!=null">#{userRole},</if>
+			<if test="createdBy!=null">#{createdBy},</if>
+			<if test="creationDate!=null">#{creationDate},</if>
+			<if test="modifyBy!=null">#{modifyBy},</if>
+			<if test="modifyDate!=null">#{modifyDate},</if>
+		</trim>
+	</insert>
+	
+	<!-- 通过ID获取用户对象 -->
+	<select id="findByid" resultType="User">
+		select u.*,r.roleName AS userRoleName 
+		from smbms_user u,	smbms_role r 
+		where u.userRole=r.id AND u.id=#{id} 
+	</select>
+	
+	<!-- 分页公共sql -->
+	<sql id="queryPage">
+		from smbms_user u
+		INNER JOIN smbms_role r
+		ON u.userRole=r.id
+		<where>
+			<if test="userName!=null">
+			and u.userName LIKE CONCAT('%',#{userName},'%')
+			</if>
+			<if test="roleId!=null">
+			and u.userRole=#{roleId}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 动态查询+分页的数据显示 -->
+	<select id="findByQuery" resultType="User" 
+		parameterType="hashmap">
+		select u.*,r.roleName AS userRoleName 
+		<include refid="queryPage"/> 
+		LIMIT #{index},#{size}
+	</select>
+	
+	<!-- 动态查询+分页的总条数 -->
+	<select id="countByQuery" resultType="Integer"
+		parameterType="hashmap">
+		select count(*)
+		<include refid="queryPage"/>
+	</select>
+	
+	<!-- 删除用户 -->
+	<delete id="deleteUser" parameterType="Integer">
+		<if test="id!=null">
+			delete from smbms_user where id = #{id}
+		</if>
+	</delete>
+	
+	<!-- 更新用户 -->
+	<update id="updateUser" parameterType="User">
+		update smbms_user
+		<trim prefix="set" suffix="where id=#{id}" suffixOverrides=",">
+			<if test="userCode!=null">userCode=#{userCode},</if>
+			<if test="userName!=null">userName=#{userName},</if>
+			<if test="userPassword!=null">userPassword=#{userPassword},</if>
+			<if test="gender!=null">gender=#{gender},</if>
+			<if test="birthday!=null">birthday=#{birthday},</if>
+			<if test="phone!=null">phone=#{phone},</if>
+			<if test="address!=null">address=#{address},</if>
+			<if test="userRole!=null">userRole=#{userRole},</if>
+			<if test="createdBy!=null">createdBy=#{createdBy},</if>
+			<if test="creationDate!=null">creationDate=#{creationDate},</if>
+			<if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+			<if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+		</trim>
+	</update>
+	<!-- 修改用户密码 -->
+	<update id="updatePwd" parameterType="User">
+		update smbms_user
+		<trim prefix="set" suffix="where id=#{id}" >
+			<if test="userPassword!=null">userPassword=#{userPassword}</if>
+		</trim>
+	</update>
+</mapper>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.smbms.mapper.BillMapper">
+	<!-- 通过ID获取订单信息 -->
+	<select id="findBillByid" resultType="Bill">
+		select * from smbms_bill 
+		where id = #{id}
+	</select>
+	
+	<!-- 分页公共sql -->
+	<sql id="queryPage">
+		from smbms_bill b 
+		INNER JOIN smbms_provider p
+		ON b.providerId = p.id
+		<where>
+			<if test="productName!=null">
+			and b.productName LIKE CONCAT('%',#{productName},'%') 
+			</if>
+			<if test="providerId!=null">
+			and b.providerId = #{providerId} 
+			</if>
+			<if test="ispayment!=null">
+			and b.ispayment = #{ispayment} 
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 动态查询+分页的数据显示 -->
+	<select id="findBillByPage" resultType="Bill" 
+		parameterType="hashmap">
+		select b.*,p.proName as providerName
+		<include refid="queryPage"/> 
+		LIMIT #{index},#{size}
+	</select>
+	
+	<!-- 动态查询+分页的总条数 -->
+	<select id="countByPage" resultType="Integer"
+		parameterType="hashmap">
+		select count(*)
+		<include refid="queryPage"/>
+	</select>
+	
+	<!-- 获取供应商列表 -->
+	<select id="showProviderinfo" resultType="Provider">
+		select * from smbms_provider 
+	</select>
+	
+	<!-- 删除用户 -->
+	<delete id="delectBill" parameterType="Integer">
+		<if test="id!=null">
+			delete from smbms_bill where id = #{id}
+		</if>
+	</delete>
+	
+	<!-- 更新订单 -->
+	<update id="updateBill" parameterType="Bill">
+		update smbms_bill
+		<trim prefix="set" suffix="where id=#{id}" suffixOverrides=",">
+			<if test="billCode!=null">billCode=#{billCode},</if>
+			<if test="productName!=null">productName=#{productName},</if>
+			<if test="productDesc!=null">productDesc=#{productDesc},</if>
+			<if test="productUnit!=null">productUnit=#{productUnit},</if>
+			<if test="productCount!=null">productCount=#{productCount},</if>
+			<if test="totalPrice!=null">totalPrice=#{totalPrice},</if>
+			<if test="isPayment!=null">isPayment=#{isPayment},</if>
+			<if test="createdBy!=null">createdBy=#{createdBy},</if>
+			<if test="creationDate!=null">creationDate=#{creationDate},</if>
+			<if test="modifyBy!=null">modifyBy=#{modifyBy},</if>
+			<if test="modifyDate!=null">modifyDate=#{modifyDate},</if>
+			<if test="providerId!=null">providerId=#{providerId},</if>
+		</trim>
+	</update>
+	
+	<!-- 添加订单 -->
+	<insert id="addBill" parameterType="Bill">
+		insert into smbms_bill(id,billCode,productName,productDesc,productUnit,productCount,totalPrice,isPayment,createdBy,creationDate,modifyBy,modifyDate,providerId) 
+		values (#{id},#{billCode},#{productName},#{productDesc},#{productUnit},#{productCount},#{totalPrice},#{isPayment},#{createdBy},#{creationDate},#{modifyBy},#{modifyDate},#{providerId})
+	</insert>
+</mapper>
